@@ -108,9 +108,9 @@ default_catch_test_source_file()
     file_name="${directory}/test/catch_definition_test.cpp"
 
     echo "/// @file ${file_name}"
-    echo "#include <catch2/catch.hpp>"
-    echo ""
     echo "#define CATCH_CONFIG_MAIN  // This tells Catch to provide a main() - only do this in one cpp file"
+    echo ""
+    echo "#include <catch2/catch.hpp>"
     echo ""
     echo "TEST_CASE( \"catch_definition_test\", \"boilerplate\" )"
     echo "{"
