@@ -1,0 +1,7 @@
+nbproject
+src
+build
+Makefile
+CMakeLists.txt
+.gitmodules
+catch2
