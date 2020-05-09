@@ -71,6 +71,8 @@ class_source_file()
 
     echo "/// @file ${file_name}"
     echo ""
+    echo "#include <${directory}/${class_name}.h>"
+    echo ""
     echo "namespace ${namespace}"
     echo "{"
     echo ""
@@ -88,14 +90,31 @@ class_test_source_file()
 
     echo "/// @file ${file_name}"
     echo ""
-    echo "#include <catch2/catch.hpp>"
     echo "#include <${directory}/${class_name}.h>"
+    echo "#include <catch2/catch.hpp>"
+    echo "#include <${directory}/${class_name}.h> // Testing include guard"
     echo ""
     echo "using namespace ${namespace};"
     echo ""
     echo "TEST_CASE( \"${class_name}_test\", \"stack\" )"
     echo "{"
     echo "    ${class_name} c;"
+    echo "}"
+}
+
+default_catch_test_source_file()
+{
+    direction=${1}
+    file_name="${directory}/test/catch_definition_test.cpp"
+
+    echo "/// @file ${file_name}"
+    echo "#include <catch2/catch.hpp>"
+    echo ""
+    echo "#define CATCH_CONFIG_MAIN  // This tells Catch to provide a main() - only do this in one cpp file"
+    echo ""
+    echo "TEST_CASE( \"catch_definition_test\", \"boilerplate\" )"
+    echo "{"
+    echo "    REQUIRE(1 == 1);"
     echo "}"
 }
 
@@ -155,7 +174,7 @@ cmakelists_basic_def()
     echo 'set(LIB_TEST_NAME "test_${PROJ_NAME}_${REPO_NAME}")'
     echo ""
     echo "message(\"Building static library \${LIB_NAME_STATIC} with \${all_source_files}\")"
-    echo "add_library(${LIB_NAME_STATIC} STATIC \${all_source_files})"
+    echo "add_library(\${LIB_NAME_STATIC} STATIC \${all_source_files})"
     echo "message(\"Building shared library \${LIB_NAME_SHARED} with \${all_source_files}\")"
     echo "add_library(\${LIB_NAME_SHARED} SHARED \${all_source_files})"
     echo ""
@@ -185,14 +204,16 @@ make_def()
 
 basic_test()
 {
-    git submodule add git@github.com:catchorg/catch2.git
-    git submodule update
+    rm -rf .gitmodule catch2
+    git submodule add -f git@github.com:catchorg/catch2.git
+    git submodule update -f
 
     rm -rf build src Makefile CMakeLists.txt
 
     mkdir -p src/phobos2390/example_namespace/test
     pushd src
     class_def Example_class phobos2390/example_namespace Example_namespace
+    default_catch_test_source_file phobos2390/example_namespace > phobos2390/example_namespace/test/catch_definition_test.cpp
     popd
     cmakelists_basic_def phobos2390 example_namespace > CMakeLists.txt
     make_def phobos2390 example_namespace > Makefile
