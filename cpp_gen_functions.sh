@@ -155,19 +155,27 @@ cmakelists_basic_def()
     echo "set(VERSION_MINOR 1)"
     echo "set(VERSION_PATCH 0)"
     echo ""
-    echo "set(CMAKE_CXX_FLAGS \"-g -std=c++11\")"
+    echo "set(CMAKE_C_COMPILER \"/usr/bin/gcc\")"
+    echo "set(CMAKE_CXX_COMPILER \"/usr/bin/g++\")"
+    echo "set(CMAKE_CXX_FLAGS \"-Wa,-mbig-obj -g -std=c++14\")"
     echo ""
     echo "set(SOURCE_DIRECTORIES \${SRC_ROOT_DIR})"
     echo ""
     echo 'set(all_source_files "")'
+    echo 'set(all_app_files "")'
+    echo 'set(all_test_files "")'
     echo "foreach(source_dir \${SOURCE_DIRECTORIES})"
     echo "  message(\"Finding everything in \${source_dir}\")"
     echo "  file(GLOB dir_src_files \${source_dir}/*.cpp)"
     echo "  set(all_source_files \${all_source_files}"
     echo "                       \${dir_src_files})"
+    echo "  file(GLOB dir_app_files \${source_dir}/app/*.cpp)"
+    echo "  set(all_app_files \${all_app_files}"
+    echo "                    \${dir_app_files})"
+    echo "  file(GLOB dir_test_files \${source_dir}/test/*.cpp)"
+    echo "  set(all_test_files \${all_test_files}"
+    echo "                     \${dir_test_files})"
     echo "endforeach()"
-    echo ""
-    echo "file(GLOB test_executable_files \${SRC_ROOT_DIR}/test/*_test.cpp)"
     echo ""
     echo "set(LIB_NAME_SHARED \${PROJ_NAME}_\${REPO_NAME})"
     echo "set(LIB_NAME_STATIC \${PROJ_NAME}_\${REPO_NAME}_s)"
@@ -178,7 +186,14 @@ cmakelists_basic_def()
     echo "message(\"Building shared library \${LIB_NAME_SHARED} with \${all_source_files}\")"
     echo "add_library(\${LIB_NAME_SHARED} SHARED \${all_source_files})"
     echo ""
-    echo "add_executable(\${LIB_TEST_NAME} \${test_executable_files})"
+    echo "foreach(app_file \${all_app_files})"
+    echo "  get_filename_component(app_name \${app_file} NAME_WE)"
+    echo "  message(\"Building app \${app_name}\")"
+    echo "  add_executable(\${app_name} \${app_file})"
+    echo "  target_link_libraries(\${app_name} \${LIB_NAME_STATIC})"
+    echo "endforeach()"
+    echo ""
+    echo "add_executable(\${LIB_TEST_NAME} \${all_test_files})"
     echo "target_link_libraries(\${LIB_TEST_NAME} \${LIB_NAME_STATIC})"
 }
 
@@ -211,7 +226,7 @@ basic_test()
     rm -rf build src Makefile CMakeLists.txt
 
     mkdir -p src/phobos2390/example_namespace/test
-    pushd src
+    pushd sr
     class_def Example_class phobos2390/example_namespace Example_namespace
     default_catch_test_source_file phobos2390/example_namespace > phobos2390/example_namespace/test/catch_definition_test.cpp
     popd
@@ -220,5 +235,3 @@ basic_test()
 
     make clean test
 }
-
-basic_test
