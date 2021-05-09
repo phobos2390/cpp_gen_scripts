@@ -235,3 +235,9 @@ basic_test()
 
     make clean test
 }
+
+catch_submodule_add()
+{
+    git submodule add git@github.com:catchorg/catch2.git
+}
+
